@@ -7,9 +7,9 @@ public class Shop {
 	private Long shopId;
 	private String shopName;
 	private String shopDesc;
-	private String shopAdds;
+	private String shopAddr;
 	private String phone;
-	private String shopimg;
+	private String shopImg;
 	private Integer priority;
 	private Date createTime;
 	private Date lastEditTime;
@@ -39,11 +39,12 @@ public class Shop {
 	public void setShopDesc(String shopDesc) {
 		this.shopDesc = shopDesc;
 	}
-	public String getShopAdds() {
-		return shopAdds;
+	
+	public String getShopAddr() {
+		return shopAddr;
 	}
-	public void setShopAdds(String shopAdds) {
-		this.shopAdds = shopAdds;
+	public void setShopAddr(String shopAddr) {
+		this.shopAddr = shopAddr;
 	}
 	public String getPhone() {
 		return phone;
@@ -51,11 +52,12 @@ public class Shop {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	public String getShopimg() {
-		return shopimg;
+	
+	public String getShopImg() {
+		return shopImg;
 	}
-	public void setShopimg(String shopimg) {
-		this.shopimg = shopimg;
+	public void setShopImg(String shopImg) {
+		this.shopImg = shopImg;
 	}
 	public Integer getPriority() {
 		return priority;

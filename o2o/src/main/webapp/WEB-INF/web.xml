@@ -24,23 +24,47 @@
 			<url-pattern>/</url-pattern>
 		</servlet-mapping>
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		<servlet>
+			<servlet-name>Kaptcha</servlet-name>
+			<servlet-class>com.google.code.kaptcha.servlet.KaptchaServlet</servlet-class>
+			
+			<init-param>
+				<param-name>kaptcha.textproducer.font.color</param-name>
+				<param-value>red</param-value>
+			</init-param>
+			
+			<init-param>
+				<param-name>kaptcha.image.width</param-name>
+				<param-value>135</param-value>
+			</init-param>
+			
+			<init-param>
+				<param-name>kaptcha.textproducer.char.string</param-name>
+				<param-value>ACDEFHKPRSTWX345679</param-value>
+			</init-param>
+			
+			<init-param>
+				<param-name>kaptcha.image.height</param-name>
+				<param-value>50</param-value>
+			</init-param>
+			
+			<init-param>
+				<param-name>kaptcha.noise.color</param-name>
+				<param-value>black</param-value>
+			</init-param>
+			
+			<init-param>
+				<param-name>kaptcha.textproducer.char.length</param-name>
+				<param-value>4</param-value>
+			</init-param>
+			
+			<init-param>
+				<param-name>kaptcha.textproducer.font.names</param-name>
+				<param-value>Arial</param-value>
+			</init-param>
+		</servlet>
+		<servlet-mapping>
+			<servlet-name>Kaptcha</servlet-name>
+			<url-pattern>/Kaptcha</url-pattern>
+		</servlet-mapping>
 </web-app>
