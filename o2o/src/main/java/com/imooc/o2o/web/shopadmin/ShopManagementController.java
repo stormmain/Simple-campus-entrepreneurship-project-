@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.imooc.o2o.dto.ImageHolder;
 import com.imooc.o2o.dto.ShopExecution;
 import com.imooc.o2o.entity.Area;
 import com.imooc.o2o.entity.PersonInfo;
@@ -25,11 +26,11 @@ import com.imooc.o2o.exceptions.ShopOperationException;
 import com.imooc.o2o.service.AreaService;
 import com.imooc.o2o.service.ShopCategoryService;
 import com.imooc.o2o.service.ShopService;
-import com.imooc.o2o.util.CodelUtil;
+import com.imooc.o2o.util.CodeUtil;
 import com.imooc.o2o.util.HttpServletRequestUtil;
 
 @Controller
-@RequestMapping("/shopadmin")
+@RequestMapping(value="shopadmin",method= {RequestMethod.GET})
 public class ShopManagementController {
 
 	@Autowired
@@ -40,6 +41,56 @@ public class ShopManagementController {
 	
 	@Autowired
 	private AreaService areaService;
+	
+	@RequestMapping(value="/getshopmanagementinfo",method=RequestMethod.GET)
+	@ResponseBody
+	private Map<String, Object> getShopManagementInfo(HttpServletRequest request){
+		Map<String, Object> modelMap=new HashMap<String, Object>();
+		long shopId=HttpServletRequestUtil.getLong(request, "shopId");
+		if(shopId<=0) {
+			Object currentShopObj=request.getSession().getAttribute("currentShop");
+			if(currentShopObj==null) {
+				modelMap.put("redirect", true);
+				modelMap.put("url", "/o2o/shopadmin/shoplist");
+			}else {
+				Shop currentShop=(Shop) currentShopObj;
+				modelMap.put("redirect", false);
+				modelMap.put("shopId", currentShop.getShopId());
+			}
+		}else {
+			Shop currentShop=new Shop();
+			currentShop.setShopId(shopId);
+			request.getSession().setAttribute("currentShop", currentShop);
+			modelMap.put("redirect", false);
+		}
+		
+		return modelMap;
+	}
+	
+	@RequestMapping(value="/getshoplist",method=RequestMethod.GET)
+	@ResponseBody
+	private Map<String, Object> getShopList(HttpServletRequest request){
+		Map<String,Object> modelMap=new HashMap<String,Object>();
+		PersonInfo user=new PersonInfo();
+		user.setUserId(1L);
+		user.setName("test");
+		request.getSession().setAttribute("user", user);
+		user=(PersonInfo) request.getSession().getAttribute("user");
+		try {
+			Shop shopCondition=new Shop();
+			shopCondition.setOwner(user);
+			ShopExecution se=shopService.getShopList(shopCondition, 0, 100);
+			modelMap.put("shopList", se.getShopList());
+			modelMap.put("user", user);
+			modelMap.put("success", true);
+		}catch(Exception e) {
+			modelMap.put("success", false);
+			modelMap.put("errMsg", e.getMessage());
+			
+		}
+		
+		return modelMap;
+	}
 	
 	@RequestMapping(value="/getshopbyid",method=RequestMethod.GET)
 	@ResponseBody
@@ -93,7 +144,7 @@ public class ShopManagementController {
 	private Map<String, Object> registerShop(HttpServletRequest request){
 		 Map<String,Object> modelMap=new HashMap<String, Object>();
 		 
-		 if(!CodelUtil.checkVerigyCode(request)) {
+		 if(!CodeUtil.checkVerigyCode(request)) {
 			 modelMap.put("success", false);
 			 modelMap.put("errMsg", "输入错误的验证码");
 			 return modelMap;
@@ -129,38 +180,17 @@ public class ShopManagementController {
 		 }
 		 
 //		 注册店铺
-		 System.out.println("5");
 		 if(shop!=null && shopImg!=null) {
 			 PersonInfo owner=(PersonInfo) request.getSession().getAttribute("user");
 			 shop.setOwner(owner);
-			 System.out.println("6");
-//			 File shopImgFile=new File(PathUtil.getImgBasePath()+ImageUtil.getRandomFileName());
-//			 
-//			try {
-//				 System.out.println("6");
-//				shopImgFile.createNewFile();
-//			} catch (IOException e) {
-//				modelMap.put("success", false);
-//				modelMap.put("errMsg", e.getMessage());
-//				e.printStackTrace();
-//			}
-			 
-//			try {
-//				System.out.println("7");
-//				inputStreamToFile(shopImg.getInputStream(),shopImgFile);
-//			} catch (IOException e) {
-//				modelMap.put("success", false);
-//				modelMap.put("errMsg", e.getMessage());
-//				return modelMap;
-//			}
 			 ShopExecution se;
 			try {
-				System.out.println("7");
-				se = shopService.addShop(shop, shopImg.getInputStream(), shopImg.getOriginalFilename());
+				ImageHolder imageHolder=new ImageHolder(shopImg.getOriginalFilename(),shopImg.getInputStream());
+				se = shopService.addShop(shop, imageHolder);
 				if(se.getState()==ShopStateEnum.CHECK.getState()) {
 					 modelMap.put("success", true);
 					 @SuppressWarnings("unchecked")
-					List<Shop> shopList=(List<Shop>) request.getSession().getAttribute("shopList");
+					 List<Shop> shopList=(List<Shop>) request.getSession().getAttribute("shopList");
 					 if(shopList==null||shopList.size()==0) {
 						 shopList=new ArrayList<Shop>();
 					 }
@@ -169,7 +199,6 @@ public class ShopManagementController {
 					 request.getSession().setAttribute("shopList", shopList);
 					 
 				}else {
-					 System.out.println("8");
 					 modelMap.put("success", false);
 					 modelMap.put("errMsg", se.getStateInfo());
 				}
@@ -184,19 +213,18 @@ public class ShopManagementController {
 			 
 			 return modelMap; 
 		 }else {
-			 System.out.println("9");
 			 modelMap.put("success", false);
 			 modelMap.put("errMsg", "请输入店铺信息");
 			 return modelMap;
 		 }
 	}
-	 
-	@RequestMapping(value="/modifyshop",method=RequestMethod.POST)
+	
+	@RequestMapping(value="/modityshop",method=RequestMethod.POST)
 	@ResponseBody
-	private Map<String, Object> modifyShop(HttpServletRequest request){
+	private Map<String, Object> modityShop(HttpServletRequest request){
 		 Map<String,Object> modelMap=new HashMap<String, Object>();
 		 
-		 if(!CodelUtil.checkVerigyCode(request)) {
+		 if(!CodeUtil.checkVerigyCode(request)) {
 			 modelMap.put("success", false);
 			 modelMap.put("errMsg", "输入错误的验证码");
 			 return modelMap;
@@ -233,9 +261,10 @@ public class ShopManagementController {
 			try {
 				System.out.println("7");
 				if(shopImg==null) {
-					se = shopService.modifyShop(shop, null, null);
+					se = shopService.modifyShop(shop, null);
 				}else {
-					se = shopService.modifyShop(shop, shopImg.getInputStream(), shopImg.getOriginalFilename());
+					ImageHolder imageHolder=new ImageHolder(shopImg.getOriginalFilename(),shopImg.getInputStream());
+					se = shopService.modifyShop(shop, imageHolder);
 				}
 				
 				if(se.getState()==ShopStateEnum.SUCCESS.getState()) {

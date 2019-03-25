@@ -2,7 +2,7 @@ package com.imooc.o2o.util;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class CodelUtil {
+public class CodeUtil {
 
 	public static boolean checkVerigyCode(HttpServletRequest request) {
 		String verigyCodeExpeted=(String) request.getSession()
@@ -16,6 +16,4 @@ public class CodelUtil {
 		
 		return true;
 	}
-
-	
 }

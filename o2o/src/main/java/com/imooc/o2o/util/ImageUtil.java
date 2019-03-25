@@ -2,12 +2,14 @@ package com.imooc.o2o.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+
+import com.imooc.o2o.dto.ImageHolder;
+
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 
@@ -29,16 +31,16 @@ public class ImageUtil {
 	private static final SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyyMMddHHmmss");
 	private static final Random random=new Random();
 	
-	public static String generateThumbnail(InputStream shopImg,String fileName, String targetAddr) {
+	public static String generateThumbnail(ImageHolder thumbnail, String targetAddr) {
 		String realFileName = getRandomFileName();
-		String extension = getFileExtension(fileName);
+		String extension = getFileExtension(thumbnail.getImageName());
 		makeDirPath(targetAddr);
 		String relativeAddr = targetAddr + realFileName + extension;
 		File dest = new File(PathUtil.getImgBasePath() + relativeAddr);
 		
 		
 		try {
-			Thumbnails.of(shopImg).size(200, 200)
+			Thumbnails.of(thumbnail.getImage()).size(200, 200)
 			.watermark(Positions.BOTTOM_LEFT,ImageIO.read(new File(basePath+"/fengjing.jpg")),0.25f)
 			.outputQuality(0.8f).toFile(dest);
 		} catch (IOException e) {

@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.imooc.o2o.BaseTest;
+import com.imooc.o2o.dto.ImageHolder;
 import com.imooc.o2o.dto.ShopExecution;
 import com.imooc.o2o.entity.Area;
 import com.imooc.o2o.entity.PersonInfo;
@@ -27,18 +28,31 @@ public class ShopServiceTest extends BaseTest {
 	private ShopService shopService;
 	
 	@Test
+	@Ignore
+	public void testGetShopList() {
+		Shop shopCondition=new Shop();
+		ShopCategory sc=new ShopCategory();
+		sc.setShopCategoryId(3L);
+		shopCondition.setShopCategory(sc);
+		ShopExecution se=shopService.getShopList(shopCondition, 1, 2);
+		System.out.println("店铺列表数为："+se.getShopList().size());
+		System.out.println("店铺总数为："+se.getCount());
+	}
+	
+	@Test
+	@Ignore
 	public void testModifyShop() throws ShopOperationException,FileNotFoundException{
 		Shop shop=new Shop();
 		shop.setShopId(1L);
 		shop.setShopName("修改后的店铺名称");
 		File shopImg=new File("/Users/lenovo/Desktop/a.jpg");
 		InputStream is=new FileInputStream(shopImg);
-		ShopExecution shopExecution=shopService.modifyShop(shop, is, "a.jpg");
+		ImageHolder imageHolder=new ImageHolder("a.jpg", is);
+		ShopExecution shopExecution=shopService.modifyShop(shop,imageHolder);
 		System.out.println(shopExecution.getShop().getShopImg());
 	}
 	
 	@Test
-	@Ignore
 	public void testAddShop() {
 		try {
 			Shop shop=new Shop();
@@ -60,7 +74,8 @@ public class ShopServiceTest extends BaseTest {
 			shop.setAdvice("审核中");
 			File shopImg=new File("/Users/lenovo/Desktop/a.jpg");
 			InputStream is=new FileInputStream(shopImg);
-			ShopExecution se=shopService.addShop(shop, is, shopImg.getName());
+			ImageHolder imageHolder=new ImageHolder(shopImg.getName(), is);
+			ShopExecution se=shopService.addShop(shop,imageHolder);
 			assertEquals(ShopStateEnum.CHECK.getState(),se.getState());
 		}catch(Exception e) {
 			e.printStackTrace();

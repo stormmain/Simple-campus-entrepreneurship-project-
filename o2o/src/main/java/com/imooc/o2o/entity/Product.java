@@ -6,7 +6,7 @@ import java.util.List;
 public class Product {
 
 	private Long productId;
-	private String paroductName;
+	private String productName;
 	private String productDesc;
 	
 	//简略图
@@ -29,11 +29,12 @@ public class Product {
 	public void setProductId(Long productId) {
 		this.productId = productId;
 	}
-	public String getParoductName() {
-		return paroductName;
+	
+	public String getProductName() {
+		return productName;
 	}
-	public void setParoductName(String paroductName) {
-		this.paroductName = paroductName;
+	public void setProductName(String productName) {
+		this.productName = productName;
 	}
 	public String getProductDesc() {
 		return productDesc;
